@@ -17,9 +17,9 @@ func main() {
 
 	// company location api 
 	r.HandleFunc("/companylocation",RentalCompany.AddRentalCompanyLocation).Methods("POST")
-	r.HandleFunc("/companylocation",RentalCompany.DisplayRentalCompanyLocation).Methods("GET")
-    r.HandleFunc("/companylocation",RentalCompany.UpdateRentalCompanyLocation).Methods("PUT")
-	r.HandleFunc("/companylocation",RentalCompany.RemoveLocation).Methods("DELETE")
+	r.HandleFunc("/companylocation/{id}",RentalCompany.DisplayRentalCompanyLocation).Methods("GET")
+    r.HandleFunc("/companylocation/{id}",RentalCompany.UpdateRentalCompanyLocation).Methods("PUT")
+	r.HandleFunc("/companylocation/{id}",RentalCompany.RemoveLocation).Methods("DELETE")
 
 	// for Auth 
 	s := r.PathPrefix("/auth").Subrouter()

@@ -18,17 +18,16 @@ var sessUValName string
 // Rest api for Create,update,Show, and Delete Company details
 func CreateComapnyDetails(w http.ResponseWriter, r *http.Request) {
     defer r.Body.Close()	
-	args := Common.Company{}
+	args := make(map[string] interface{})
     _ = json.NewDecoder(r.Body).Decode(&args)
-	collection = setCollection("j1_db","company_collection")
-	str := &Common.Company{Id:bson.ObjectId(bson.NewObjectId()).Hex(),CreatedOn:time.Now().UnixNano() / (int64(time.Millisecond)),CompanyName:args.CompanyName,CompanyRegistrationNumber:args.CompanyRegistrationNumber,CompanyEmail:args.CompanyEmail,PhoneNumber:args.PhoneNumber,MobileNumber:args.MobileNumber,UserId:args.UserId,Password:args.Password}
+	collection = setCollection("transportation_db","company_collection")
+	str := &Common.Company{Id:bson.ObjectId(bson.NewObjectId()).Hex(),CreatedOn:time.Now().UnixNano() / (int64(time.Millisecond)),CompanyName:args["company_name"].(string),CompanyRegistrationNumber:args["company_registration_number"].(string),CompanyEmail:args["email"].(string),PhoneNumber:args["phone_number"].(string),MobileNumber:args["mobile_number"].(string),UserId:args["user_id"].(string),Password:args["password"].(string)}
 	err := collection.Insert(str)
 	if err != nil {
 		fmt.Println("error in inserting",err)
 	}else {
-		userArgs := Common.UserInstance{}
-		collection = setCollection("j1_db","userInstance_collection")
-		UserIntanceStr := &Common.UserInstance{Id:bson.ObjectId(bson.NewObjectId()).Hex(),UserAddedOn:time.Now().UnixNano() / (int64(time.Millisecond)),UserEmail:userArgs.UserEmail,UserName:userArgs.UserName}
+		collection = setCollection("transportation_db","userInstance_collection")
+		UserIntanceStr := &Common.UserInstance{MobileNumber:args["mobile_number"].(string),Id:bson.ObjectId(bson.NewObjectId()).Hex(),UserAddedOn:time.Now().UnixNano() / (int64(time.Millisecond)),UserEmail:args["email"].(string),UserName:args["company_name"].(string)}
 		err2 := collection.Insert(UserIntanceStr)			
 		if err2 != nil {
 			respondWithError(w,http.StatusBadRequest,err2.Error())
@@ -41,7 +40,7 @@ func CreateComapnyDetails(w http.ResponseWriter, r *http.Request) {
 func DisplayComapnyDetails(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
     fmt.Println("vars are ",params["id"] )
-	collection = setCollection("j1_db","company_collection")
+	collection = setCollection("transportation_db","company_collection")
     args := Common.Company{}
     err := collection.Find(bson.M{"_id":params["id"]}).One(&args)
 	if err != nil {
@@ -56,7 +55,7 @@ func UpdateComapnyDetails(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("vars are ",params["id"] )
 	args := Common.Company{}
     _ = json.NewDecoder(r.Body).Decode(&args)
-    collection = setCollection("j1_db","company_collection")
+    collection = setCollection("transportation_db","company_collection")
     err := collection.Update(bson.M{"_id":params["id"]},bson.M{"$set":bson.M{"company_name":args.CompanyName,"company_registration_number":args.CompanyRegistrationNumber,"company_email":args.CompanyEmail,"phone_number":args.PhoneNumber,"mobile_number":args.MobileNumber,"user_id":args.UserId,"password":args.Password}})
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest,err.Error())
@@ -66,7 +65,7 @@ func UpdateComapnyDetails(w http.ResponseWriter, r *http.Request) {
 }
 func DeleteComapnyDetails(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-    collection = setCollection("j1_db","company_collection")
+    collection = setCollection("transportation_db","company_collection")
     err := collection.Remove(bson.M{"_id":params["id"]})
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest,err.Error())
@@ -80,8 +79,8 @@ func AddRentalCompanyLocation(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()	
 	args:= make(map[string]interface{})
 	_ = json.NewDecoder(r.Body).Decode(&args)
-	collection = setCollection("j1_db","company_location")
-	insertQuery := &Common.CompanyLocation{Id:bson.ObjectId(bson.NewObjectId()).Hex(),MobileNumber:args["mobileNumber"].(string),LocationAddedOn:time.Now().UnixNano() / (int64(time.Millisecond)),LocationName:args["locationName"].(string),CoodinatesX:args["coordinatesX"].(string),CoordinatesY:args["coordinatesY"].(string)}
+	collection = setCollection("transportation_db","company_location_collection")
+	insertQuery := &Common.CompanyLocation{Id:bson.ObjectId(bson.NewObjectId()).Hex(),MobileNumber:args["mobile_number"].(string),LocationAddedOn:time.Now().UnixNano() / (int64(time.Millisecond)),LocationName:args["location_name"].(string),CoodinatesX:args["coordinates_x"].(string),CoordinatesY:args["coordinates_y"].(string)}
 	err := collection.Insert(insertQuery)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest,err.Error())
@@ -93,7 +92,7 @@ func AddRentalCompanyLocation(w http.ResponseWriter, r *http.Request) {
 func DisplayRentalCompanyLocation(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()	
 	params := mux.Vars(r)
-	collection = setCollection("j1_db","company_location")
+	collection = setCollection("transportation_db","company_location_collection")
 	companyLocationStr := Common.CompanyLocation{}
 	err := collection.Find(bson.M{"_id":params["id"]}).One(&companyLocationStr)
 	if err != nil {
@@ -108,7 +107,7 @@ func UpdateRentalCompanyLocation(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)	
 	args := make(map[string]interface{})
 	_ = json.NewDecoder(r.Body).Decode(&args)
-	collection = setCollection("j1_db","company_location")
+	collection = setCollection("transportation_db","company_location_collection")
 	err := collection.Update(bson.M{"_id":params["id"]},bson.M{"$set":bson.M{"mobile_number":args["mobileNumber"].(string),"location_name":args["locationName"].(string),"coordinates_x":args["coordinatesX"].(string),"coordinates_y":args["coordinatesY"].(string)}})
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest,err.Error())
@@ -120,7 +119,7 @@ func UpdateRentalCompanyLocation(w http.ResponseWriter, r *http.Request) {
 func RemoveLocation(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()	
 	params := mux.Vars(r)	
-	collection = setCollection("j1_db","company_location")
+	collection = setCollection("transportation_db","company_location_collection")
 	err := collection.Remove(bson.M{"_id":params["Id"]})
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest,err.Error())
@@ -140,7 +139,7 @@ func IsuserExistMiddleware( next http.Handler) http.Handler{
 	// m := Common.UserInstance{}
 	m := make(map[string]interface{})
 	_ = json.NewDecoder(r.Body).Decode(&m)	
-	collection = setCollection("j1_db", "company_collection")
+	collection = setCollection("transportation_db", "company_collection")
 	// pwd := StringMd5(password)
 	usr, err := collection.Find(bson.M{"company_email": m["email"].(string), "password": m["password"].
 	(string)}).Count()
@@ -186,7 +185,7 @@ func GetConnected() *mgo.Session {
 	dialInfo, err := mgo.ParseURL("mongodb://localhost:27017")
 	dialInfo.Direct = true
 	dialInfo.FailFast = true
-	dialInfo.Database = "j1_db"
+	dialInfo.Database = "transportation_db"
 	dialInfo.Username = "root"
 	dialInfo.Password = "tiger"
 	sess, err := mgo.DialWithInfo(dialInfo)
