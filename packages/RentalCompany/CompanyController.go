@@ -42,8 +42,8 @@ func DisplayComapnyDetails(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
     fmt.Println("vars are ",params["id"] )
 	collection = setCollection("j1_db","company_collection")
-    args := []Common.Company{}
-    err := collection.Find(bson.M{"_id":params["id"]}).All(&args)
+    args := Common.Company{}
+    err := collection.Find(bson.M{"_id":params["id"]}).One(&args)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest,err.Error())
 	}else{
