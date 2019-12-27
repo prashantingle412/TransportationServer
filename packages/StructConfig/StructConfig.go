@@ -1,14 +1,15 @@
-package Common
+package StructConfig
 type Company struct {
     Id string `json:"_id" bson:"_id"`
 	CreatedOn int64 `json:"created_on" bson:"created_on"`
 	CompanyName string `json:"company_name" bson:"company_name"`
     CompanyRegistrationNumber string `json:"company_registration_number" bson:"company_registration_number"`
-    CompanyEmail string `json:"company_email" bson:"company_email"`
+    Email string `json:"email" bson:"email"`
     PhoneNumber string `json:"phone_number" bson:"phone_number"`
     MobileNumber string `json:"mobile_number" bson:"mobile_number"`
     UserId string       `json:"user_id" bson:"user_id"`
     Password string `json:"password" bson:"password"`
+	UserRole string `json:"user_role" bson:"user_role"`
 }
 type CompanyLocation struct {
     Id string `json:"_id" bson:"_id"`
@@ -24,6 +25,7 @@ type UserInstance struct {
     UserAddedOn int64 `json:"user_added_on" bson:"user_added_on"`
     UserEmail string `json:"user_email" bson:"user_email"`
     UserName string `json:"user_name" bson:"user_name"`    
+    UserRole string `json:"user_role" bson:"user_role"`
 }
 type JwtStruct struct {
     
