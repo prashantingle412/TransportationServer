@@ -4,7 +4,10 @@ import (
 	"time"
 	"TransportationServer/packages/StructConfig"
 	"TransportationServer/packages/DbConfig"
-	// "log"
+	"log"
+	"net/http"
+	"encoding/json"
+	"TransportationServer/packages/Common"
 )
 
 func AddCompanyDetails(args StructConfig.Company) error{
@@ -65,3 +68,49 @@ func RemoveCLocation(Id string) error {
 	err := DbConfig.Collection.Remove(bson.M{"_id":Id})
 	return err
 }
+func IsUserExist(args StructConfig.UserInstance) (bool,error){
+	DbConfig.Collection = DbConfig.SetCollection("transportation_db", "company_collection")
+	// pwd := StringMd5(password)
+	usr, err := DbConfig.Collection.Find(bson.M{"company_email": args.UserEmail, "password": args.Password}).Count()
+	if err != nil {
+		if err.Error() == "not found" {
+			return false,err
+		} else {
+			return false,err
+		}
+	} else if usr == 1 {
+		return true,nil
+	} else {
+		return false,err		
+	  }
+}
+func CheckRole(next http.Handler) http.Handler{
+	return http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
+		args := StructConfig.UserInstance{}	
+		bodyErr := json.NewDecoder(r.Body).Decode(&args)
+		if bodyErr != nil {
+			Common.RespondWithError(w,http.StatusBadRequest ,bodyErr.Error())		
+		}
+		DbConfig.Collection = DbConfig.SetCollection("transportation_db","userInstance_collection")
+		admin,err := DbConfig.Collection.Find(bson.M{"user_email":args.UserEmail,"password":args.Password,"user_role":args.UserRole}).Count()	
+		if err != nil {
+			if err.Error() == "not found" {
+				Common.RespondWithError(w, http.StatusBadRequest,"user does not exists1")
+			} else {
+				Common.RespondWithError(w, http.StatusBadRequest,"user does not exists2")
+			}
+		}else if admin == 1{
+			log.Println("count is ",admin)
+			next.ServeHTTP(w, r)
+		}else {
+			Common.RespondWithError(w, http.StatusBadRequest,"user does not exists3")		
+		}			
+	})	
+}
+// api for new register user,admin,and customer
+// func AddEmployee(args StructConfig.Employee) error {
+// 	DbConfig.Collection = DbConfig.SetCollection("transportation_db","employee_collection")
+// 	str := &StructConfig.Employee{Id:bson.ObjectId(bson.NewObjectId()).Hex(),MobileNumber:args.MobileNumber,EmployeeAddedOn:time.Now().UnixNano() / (int64(time.Millisecond)),EmployeeName:args.EmployeeName,Email:args.Email,Password:args.Password,RoleID:args.RoleID}
+// 	err := DbConfig.Collection.Insert(str)
+// 	return err
+// }

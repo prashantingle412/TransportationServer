@@ -4,12 +4,13 @@ import (
     // "log"
     "encoding/json"
     "github.com/gorilla/mux"
-    // "gopkg.in/mgo.v2"
-	// "gopkg.in/mgo.v2/bson"
-	// "time"
 	"TransportationServer/packages/StructConfig"
 	"TransportationServer/packages/CompanyDao"
 	"TransportationServer/packages/Common"
+	"TransportationServer/packages/TokenManager"
+	jwt "github.com/dgrijalva/jwt-go"
+	
+	"fmt"
 )
 
 // Rest api for Create,update,Show, and Delete Company details
@@ -67,7 +68,10 @@ func DeleteComapnyDetails(w http.ResponseWriter, r *http.Request) {
 func AddRentalCompanyLocation(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()	
 	args:= StructConfig.CompanyLocation{}
-	_ = json.NewDecoder(r.Body).Decode(&args)
+	bodyErr := json.NewDecoder(r.Body).Decode(&args)
+	if bodyErr != nil {
+		Common.RespondWithError(w, http.StatusBadRequest,bodyErr.Error())
+	}
 	err := CompanyDao.AddCLocation(args)
 	if err != nil {
 		Common.RespondWithError(w, http.StatusBadRequest,err.Error())
@@ -112,39 +116,72 @@ func RemoveLocation(w http.ResponseWriter, r *http.Request) {
 		Common.RespondWithJson(w,http.StatusOK,"Company Location Removed Successfully")
 	}
 }
-/*
-// Api is in under working 
-func Login(w http.ResponseWriter, r *http.Request){
-	Common.RespondWithJson(w,http.StatusOK,"welcome login successfull .....user authenticated ")
-	// collection = setCollection("")
-}
 
-func IsuserExistMiddleware( next http.Handler) http.Handler{
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()	
-	// m := StructConfig.UserInstance{}
-	m := make(map[string]interface{})
-	_ = json.NewDecoder(r.Body).Decode(&m)	
-	collection = setCollection("transportation_db", "company_collection")
-	// pwd := StringMd5(password)
-	usr, err := collection.Find(bson.M{"company_email": m["email"].(string), "password": m["password"].
-	(string)}).Count()
-	if err != nil {
-		if err.Error() == "not found" {
-			Common.RespondWithError(w, http.StatusBadRequest,"user does not exists")
-			// return false, nil
-		} else {
-			Common.RespondWithError(w, http.StatusBadRequest,"user does not exists")
-			// return false, err
-		}
-	} else if usr < 1 {
-		Common.RespondWithError(w, http.StatusBadRequest,"user does not exists")
-	} else {
-		next.ServeHTTP(w, r)
-	  }
+// Api is in under working 
+func Login(w http.ResponseWriter, r *http.Request){	
+	args := StructConfig.UserInstance{}	
+	bodyErr := json.NewDecoder(r.Body).Decode(&args)
+	if bodyErr != nil {
+		Common.RespondWithError(w,http.StatusBadRequest ,bodyErr.Error())		
+	}
+	if _,userexistErr := CompanyDao.IsUserExist(args); userexistErr != nil{
+		Common.RespondWithError(w,http.StatusBadRequest ,userexistErr.Error())
+		return
+	}
+	if token,err := TokenManager.GenerateToken(args); err != nil{
+		Common.RespondWithError(w, http.StatusBadRequest,err.Error())
+	}else {
+		Common.RespondWithJson(w,http.StatusOK,token)
+	}
+}
+func IsAuthorized(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+        if r.Header["Token"] != nil {
+
+            token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
+                if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+                    return nil, fmt.Errorf("There was an error")
+                }
+                return []byte("write_some_secret_key_here"), nil
+            })
+
+            if err != nil {
+                fmt.Fprintf(w, err.Error())
+            }
+
+            if token.Valid {
+                next.ServeHTTP(w, r)
+            }
+        } else {
+
+            fmt.Fprintf(w, "Not Authorized")
+        }
 	})
+}
+func Welcome(w http.ResponseWriter, r *http.Request) {
+	Common.RespondWithJson(w,http.StatusOK,"welcome to secret part")
+}
+/*
+// register user/ customer/ admin
+func NewRegister(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	args := StructConfig.Employee{}
+	bodyErr := json.NewDecoder(r.Body).Decode(&args)
+	if bodyErr != nil{
+		Common.RespondWithError(w, http.StatusBadRequest,bodyErr.Error())
+	}
+	err :=CompanyDao.AddEmployee(args)
+	if err != nil {
+		Common.RespondWithError(w, http.StatusBadRequest,err.Error())		
+	}else {
+		Common.RespondWithJson(w, http.StatusOK,"employee created successfully")				
+	}
 }
 */
 
-//Helper Functions  
-
+//  Car APIs started
+// func AddCarDetails(w http.ResponseWriter, r *http.Request) {
+// 	args := StructConfig.{}	
+// 	bodyErr := json.NewDecoder(r.Body).Decode(&args)
+// }
