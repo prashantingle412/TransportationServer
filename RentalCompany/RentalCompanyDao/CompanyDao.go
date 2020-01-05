@@ -6,7 +6,7 @@ import (
 	"TransportationServer/CommonPackages/DbConfig"
 	"log"
 	"net/http"
-	"encoding/json"
+	// "encoding/json"
 	"TransportationServer/CommonPackages/Common"
 )
 
@@ -86,13 +86,13 @@ func IsUserExist(args StructConfig.UserInstance) (bool,error){
 }
 func CheckRole(next http.Handler) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
-		args := StructConfig.UserInstance{}	
-		bodyErr := json.NewDecoder(r.Body).Decode(&args)
-		if bodyErr != nil {
-			Common.RespondWithError(w,http.StatusBadRequest ,bodyErr.Error())		
+		role := r.Header.Get("user_role")
+		email := r.Header.Get("user_email")
+		if role != "admin" {
+			Common.RespondWithError(w,http.StatusBadRequest ,"You are not authenticate person to perform ")		
 		}
 		DbConfig.Collection = DbConfig.SetCollection("transportation_db","userInstance_collection")
-		admin,err := DbConfig.Collection.Find(bson.M{"user_email":args.UserEmail,"user_role":args.UserRole}).Count()	
+		admin,err := DbConfig.Collection.Find(bson.M{"user_email":email,"user_role":role}).Count()	
 		if err != nil {
 			if err.Error() == "not found" {
 				Common.RespondWithError(w, http.StatusBadRequest,"You are Authenticate to perform Action")

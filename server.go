@@ -33,14 +33,14 @@ func main() {
     a.HandleFunc("/companylocation/{id}",RentalCompanyApi.UpdateRentalCompanyLocation).Methods("PUT")
 	a.HandleFunc("/companylocation/{id}",RentalCompanyApi.RemoveLocation).Methods("DELETE")
 
-	r.HandleFunc("/carmaster",CarApi.AddCarMaster).Methods("POST")
-	r.HandleFunc("/carmaster/{id}",CarApi.DisplayCarMaster).Methods("GET")
-	r.HandleFunc("/carmaster/{id}",CarApi.UpdateCarMaster).Methods("PUT")
-	r.HandleFunc("/carmaster/{id}",CarApi.RemoveCarMaster).Methods("DELETE")
+	a.HandleFunc("/carmaster",CarApi.AddCarMaster).Methods("POST")
+	a.HandleFunc("/carmaster/{id}",CarApi.DisplayCarMaster).Methods("GET")
+	a.HandleFunc("/carmaster/{id}",CarApi.UpdateCarMaster).Methods("PUT")
+	a.HandleFunc("/carmaster/{id}",CarApi.RemoveCarMaster).Methods("DELETE")
 	//For car informations 
-	r.HandleFunc("/addcar",CarApi.AddCompanyCar).Methods("DELETE")
-	r.HandleFunc("/carmaster/{id}",CarApi.DisplayCompanyCarInfo).Methods("GET")
-	r.HandleFunc("/carmaster/{id}",CarApi.RemoveCarCompanyInfo).Methods("DELETE")
+	a.HandleFunc("/addcar",CarApi.AddCompanyCar).Methods("DELETE")
+	a.HandleFunc("/carmaster/{id}",CarApi.DisplayCompanyCarInfo).Methods("GET")
+	a.HandleFunc("/carmaster/{id}",CarApi.RemoveCarCompanyInfo).Methods("DELETE")
 	
 	a.Use(CompanyDao.CheckRole)
 	
