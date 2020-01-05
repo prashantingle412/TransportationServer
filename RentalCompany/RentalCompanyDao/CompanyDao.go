@@ -88,9 +88,6 @@ func CheckRole(next http.Handler) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
 		role := r.Header.Get("user_role")
 		email := r.Header.Get("user_email")
-		if role != "admin" {
-			Common.RespondWithError(w,http.StatusBadRequest ,"You are not authenticate person to perform ")		
-		}
 		DbConfig.Collection = DbConfig.SetCollection("transportation_db","userInstance_collection")
 		admin,err := DbConfig.Collection.Find(bson.M{"user_email":email,"user_role":role}).Count()	
 		if err != nil {
