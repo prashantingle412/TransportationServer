@@ -12,13 +12,14 @@ import (
 
 func AddCompanyDetails(args StructConfig.Company) error{
 	DbConfig.Collection = DbConfig.SetCollection("transportation_db","company_collection")
-	str := &StructConfig.Company{Id:bson.ObjectId(bson.NewObjectId()).Hex(),CreatedOn:time.Now().UnixNano() / (int64(time.Millisecond)),CompanyName:args.CompanyName,CompanyRegistrationNumber:args.CompanyRegistrationNumber,Email:args.Email,PhoneNumber:args.PhoneNumber,MobileNumber:args.MobileNumber,UserId:args.UserId,Password:args.Password,UserRole:args.UserRole}
+	Password := Common.StringMd5(args.Password)	
+	str := &StructConfig.Company{Id:bson.ObjectId(bson.NewObjectId()).Hex(),CreatedOn:time.Now().UnixNano() / (int64(time.Millisecond)),CompanyName:args.CompanyName,CompanyRegistrationNumber:args.CompanyRegistrationNumber,Email:args.Email,PhoneNumber:args.PhoneNumber,MobileNumber:args.MobileNumber,UserId:args.UserId,Password:Password,UserRole:args.UserRole}
 	err := DbConfig.Collection.Insert(str)
 	if err != nil {
 		return err
 	}else {
 		DbConfig.Collection = DbConfig.SetCollection("transportation_db","userInstance_collection")
-		UserIntanceStr := &StructConfig.UserInstance{MobileNumber:args.MobileNumber,Id:bson.ObjectId(bson.NewObjectId()).Hex(),UserAddedOn:time.Now().UnixNano() / (int64(time.Millisecond)),UserEmail:args.Email,UserName:args.CompanyName,UserRole:args.UserRole}
+		UserIntanceStr := &StructConfig.UserInstance{MobileNumber:args.MobileNumber,Id:bson.ObjectId(bson.NewObjectId()).Hex(),UserAddedOn:time.Now().UnixNano() / (int64(time.Millisecond)),UserEmail:args.Email,UserName:args.CompanyName,UserRole:args.UserRole,Password:Password}
 		err2 := DbConfig.Collection.Insert(UserIntanceStr)		
 		if err2 != nil {
 			return err
@@ -34,7 +35,7 @@ func GetCompanyDetails(Id string ) (StructConfig.Company,error) {
 }
 func PutCompanyDeails(args StructConfig.Company) error{
 	DbConfig.Collection = DbConfig.SetCollection("transportation_db","company_collection")
-	err := DbConfig.Collection.Update(bson.M{"_id":args.Id},bson.M{"$set":bson.M{"company_name":args.CompanyName,"company_registration_number":args.CompanyRegistrationNumber,"email":args.Email,"phone_number":args.PhoneNumber,"mobile_number":args.MobileNumber,"user_id":args.UserId,"password":args.Password,"user_role":args.UserRole}})
+	err := DbConfig.Collection.Update(bson.M{"_id":args.Id},bson.M{"$set":bson.M{"company_name":args.CompanyName,"company_registration_number":args.CompanyRegistrationNumber,"email":args.Email,"phone_number":args.PhoneNumber,"mobile_number":args.MobileNumber,"user_id":args.UserId,"password":Common.StringMd5(args.Password),"user_role":args.UserRole}})
 	return err
 }
 
@@ -71,7 +72,7 @@ func RemoveCLocation(Id string) error {
 func IsUserExist(args StructConfig.UserInstance) (bool,error){
 	DbConfig.Collection = DbConfig.SetCollection("transportation_db", "company_collection")
 	// pwd := StringMd5(password)
-	usr, err := DbConfig.Collection.Find(bson.M{"company_email": args.UserEmail, "password": args.Password}).Count()
+	usr, err := DbConfig.Collection.Find(bson.M{"company_email": args.UserEmail, "password": Common.StringMd5(args.Password)}).Count()
 	if err != nil {
 		if err.Error() == "not found" {
 			return false,err
