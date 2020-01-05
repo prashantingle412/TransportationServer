@@ -2,12 +2,12 @@ package CompanyDao
 import (
 	"gopkg.in/mgo.v2/bson"
 	"time"
-	"TransportationServer/packages/StructConfig"
-	"TransportationServer/packages/DbConfig"
+	"TransportationServer/CommonPackages/StructConfig"
+	"TransportationServer/CommonPackages/DbConfig"
 	"log"
 	"net/http"
 	"encoding/json"
-	"TransportationServer/packages/Common"
+	"TransportationServer/CommonPackages/Common"
 )
 
 func AddCompanyDetails(args StructConfig.Company) error{
@@ -92,25 +92,19 @@ func CheckRole(next http.Handler) http.Handler{
 			Common.RespondWithError(w,http.StatusBadRequest ,bodyErr.Error())		
 		}
 		DbConfig.Collection = DbConfig.SetCollection("transportation_db","userInstance_collection")
-		admin,err := DbConfig.Collection.Find(bson.M{"user_email":args.UserEmail,"password":args.Password,"user_role":args.UserRole}).Count()	
+		admin,err := DbConfig.Collection.Find(bson.M{"user_email":args.UserEmail,"user_role":args.UserRole}).Count()	
 		if err != nil {
 			if err.Error() == "not found" {
-				Common.RespondWithError(w, http.StatusBadRequest,"user does not exists1")
+				Common.RespondWithError(w, http.StatusBadRequest,"You are Authenticate to perform Action")
 			} else {
-				Common.RespondWithError(w, http.StatusBadRequest,"user does not exists2")
+				Common.RespondWithError(w, http.StatusBadRequest,"You are Authenticate to perform Action")
 			}
 		}else if admin == 1{
 			log.Println("count is ",admin)
 			next.ServeHTTP(w, r)
 		}else {
-			Common.RespondWithError(w, http.StatusBadRequest,"user does not exists3")		
+			Common.RespondWithError(w, http.StatusBadRequest,"You are Authenticate to perform Action")		
 		}			
 	})	
 }
-// api for new register user,admin,and customer
-// func AddEmployee(args StructConfig.Employee) error {
-// 	DbConfig.Collection = DbConfig.SetCollection("transportation_db","employee_collection")
-// 	str := &StructConfig.Employee{Id:bson.ObjectId(bson.NewObjectId()).Hex(),MobileNumber:args.MobileNumber,EmployeeAddedOn:time.Now().UnixNano() / (int64(time.Millisecond)),EmployeeName:args.EmployeeName,Email:args.Email,Password:args.Password,RoleID:args.RoleID}
-// 	err := DbConfig.Collection.Insert(str)
-// 	return err
-// }
+

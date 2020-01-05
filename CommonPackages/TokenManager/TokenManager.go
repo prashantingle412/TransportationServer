@@ -2,8 +2,7 @@ package TokenManager
 
 import (
 	jwt "github.com/dgrijalva/jwt-go"
-	"TransportationServer/packages/StructConfig"
-	// "TransportationServer/packages/RentalCompanyApi"	
+	"TransportationServer/CommonPackages/StructConfig"
 	"log"
 	// "net/http"
 	// "fmt"
@@ -14,7 +13,7 @@ func GenerateToken(empStruct StructConfig.UserInstance)(string,error){
 	  UserName : empStruct.UserName,
 	  UserEmail : empStruct.UserEmail,
 	})
-	tokenstring, err := token.SignedString([]byte("write_some_secret_key_here"))
+	tokenstring, err := token.SignedString([]byte("myKey"))
 	if err != nil {
 	  log.Println("Error while generate token : ",err)
 	  return "",err
@@ -25,7 +24,7 @@ func GenerateToken(empStruct StructConfig.UserInstance)(string,error){
 
   func DecodeToken(tokenString string)(interface{},error){
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-	  return []byte("write_some_secret_key_here"), nil
+	  return []byte("myKey"), nil
 	})
 	if err != nil {
 	  log.Println("Error while DecodeToken : ",err)
@@ -38,7 +37,7 @@ func GenerateToken(empStruct StructConfig.UserInstance)(string,error){
   
   func IsTokenValid(tokenString string)(bool,error){
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-	  return []byte("write_some_secret_key_here"), nil
+	  return []byte("myKey"), nil
 	})
 	// When using `Parse`, the result `Claims` would be a map.
 	if err != nil {

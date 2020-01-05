@@ -34,24 +34,16 @@ type JwtStruct struct {
     UserName string `json:"user_name"`   
     jwt.StandardClaims 
 }
-// type Employee struct {
-//    Id string `json:"_id" bson:"_id"`
-//    EmployeeAddedOn int64 `json:"user_added_on" bson:"user_added_on"`
-//    EmployeeName string `json:"employee_name" bson:"employee_name"`
-//    Email string `json:"email" bson:"email"`
-//    Password string `json:"password" bson:"password"`
-//    RoleID string `json:"roleID" bson:"roleID"`
-//    MobileNumber string `json:"mobile_number" bson:"mobile_number"` 
-// }
 type CarMaster struct {
     Id string `json:"_id" bson:"_id"`
-    Category string `json:"category" bson:"category"`
-    CarMAke string`json:"car_make" bson:"car_make"`  
+    AddedOn int64 `json:"added_on" bson:"added_on"`
+    CarCategory string `json:"car_category" bson:"car_category"`
+    CarMake string`json:"car_make" bson:"car_make"`  
 }
 type CompanyCar struct {
     Id string `json:"_id" bson:"_id"`
+    CompanyCarAddedOn int64 `json:"company_car_addedon" bson:"company_car_addedon"` 
     CarCategoryId string `json:"car_category_id" bson:"car_category_id"`
-    Email string `json:"email" bson:"email"`
     CarNumberPLate string `json:"car_number_plate" bson:"car_number_plate"`
     CarColor string `json:"car_color" bson:"car_color"`
     CarModel string `json:"car_model" bson:"car_model"`
@@ -64,7 +56,7 @@ type CompanyCar struct {
     CarFetures CarFetures `json:"car_fetures" bson:"car_fetures"`    
 }
 type CarFetures struct {
-    Window_type string `json:"window_type" bson:"window_type"` // powerWindow , etc
+    WindowType string `json:"window_type" bson:"window_type"` // powerWindow , etc
     SoundType string `json:"sound_type" bson:"sound_type"` 
     LockingType string `json:"locking_type" json:"locking_type"`
     ParkingCensor string `json:"parking_censor" bson:"parking_censor"`

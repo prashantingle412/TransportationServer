@@ -4,10 +4,10 @@ import (
     // "log"
     "encoding/json"
     "github.com/gorilla/mux"
-	"TransportationServer/packages/StructConfig"
-	"TransportationServer/packages/CompanyDao"
-	"TransportationServer/packages/Common"
-	"TransportationServer/packages/TokenManager"
+	"TransportationServer/CommonPackages/StructConfig"
+	"TransportationServer/RentalCompany/RentalCompanyDao"
+	"TransportationServer/CommonPackages/Common"
+	"TransportationServer/CommonPackages/TokenManager"
 	jwt "github.com/dgrijalva/jwt-go"
 	
 	"fmt"
@@ -76,7 +76,7 @@ func AddRentalCompanyLocation(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Common.RespondWithError(w, http.StatusBadRequest,err.Error())
 	}else{
-		Common.RespondWithJson(w,http.StatusOK,args)
+		Common.RespondWithJson(w,http.StatusOK,"added location")
 	}
 }
 
@@ -143,7 +143,7 @@ func IsAuthorized(next http.Handler) http.Handler {
                 if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
                     return nil, fmt.Errorf("There was an error")
                 }
-                return []byte("write_some_secret_key_here"), nil
+                return []byte("myKey"), nil
             })
 
             if err != nil {
@@ -162,26 +162,3 @@ func IsAuthorized(next http.Handler) http.Handler {
 func Welcome(w http.ResponseWriter, r *http.Request) {
 	Common.RespondWithJson(w,http.StatusOK,"welcome to secret part")
 }
-/*
-// register user/ customer/ admin
-func NewRegister(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	args := StructConfig.Employee{}
-	bodyErr := json.NewDecoder(r.Body).Decode(&args)
-	if bodyErr != nil{
-		Common.RespondWithError(w, http.StatusBadRequest,bodyErr.Error())
-	}
-	err :=CompanyDao.AddEmployee(args)
-	if err != nil {
-		Common.RespondWithError(w, http.StatusBadRequest,err.Error())		
-	}else {
-		Common.RespondWithJson(w, http.StatusOK,"employee created successfully")				
-	}
-}
-*/
-
-//  Car APIs started
-// func AddCarDetails(w http.ResponseWriter, r *http.Request) {
-// 	args := StructConfig.{}	
-// 	bodyErr := json.NewDecoder(r.Body).Decode(&args)
-// }

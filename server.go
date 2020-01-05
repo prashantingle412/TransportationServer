@@ -7,16 +7,23 @@ import (
 	"os"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
-	"TransportationServer/packages/RentalCompanyApi"
-	"TransportationServer/packages/CompanyDao"
+	"TransportationServer/RentalCompany/RentalCompanyApi"
+	"TransportationServer/RentalCompany/RentalCompanyDao"
+	"TransportationServer/Car/CarApi"
+
 )
 func main() {
-	r := mux.NewRouter()
-	// api for register user customer and admin
-	// r.HandleFunc("/register",RentalCompanyApi.NewRegister).Methods("POST")
-	// company details api sub router Endpoints
-	a := r.PathPrefix("/admin").Subrouter()
-	a.HandleFunc("/companydetails",RentalCompanyApi.CreateComapnyDetails).Methods("POST")
+	r := mux.NewRouter()	
+	r.HandleFunc("/login",RentalCompanyApi.Login).Methods("GET")
+	// sub router for generating jwt token for user
+
+	s := r.PathPrefix("/auth").Subrouter()
+	s.HandleFunc("/welcome", RentalCompanyApi.Welcome)
+	s.Use(RentalCompanyApi.IsAuthorized)
+	// api For create company with Defoult Admin
+	r.HandleFunc("/createcompany",RentalCompanyApi.CreateComapnyDetails).Methods("POST")
+	// We check if roleID is Admin or not and then do other operations
+	a := r.PathPrefix("/admin").Subrouter() 
 	a.HandleFunc("/companydetails/{id}", RentalCompanyApi.DisplayComapnyDetails).Methods("GET")
 	a.HandleFunc("/companydetails/{id}", RentalCompanyApi.UpdateComapnyDetails).Methods("PUT")
 	a.HandleFunc("/companydetails/{id}", RentalCompanyApi.DeleteComapnyDetails).Methods("DELETE")
@@ -25,15 +32,18 @@ func main() {
 	a.HandleFunc("/companylocation/{id}",RentalCompanyApi.DisplayRentalCompanyLocation).Methods("GET")
     a.HandleFunc("/companylocation/{id}",RentalCompanyApi.UpdateRentalCompanyLocation).Methods("PUT")
 	a.HandleFunc("/companylocation/{id}",RentalCompanyApi.RemoveLocation).Methods("DELETE")
-	a.Use(CompanyDao.CheckRole)
 
-	// for Auth 
-	r.HandleFunc("/login",RentalCompanyApi.Login).Methods("GET")
-	s := r.PathPrefix("/auth").Subrouter()
-	s.HandleFunc("/welcome", RentalCompanyApi.Welcome)
-	s.Use(RentalCompanyApi.IsAuthorized)
+	r.HandleFunc("/carmaster",CarApi.AddCarMaster).Methods("POST")
+	r.HandleFunc("/carmaster/{id}",CarApi.DisplayCarMaster).Methods("GET")
+	r.HandleFunc("/carmaster/{id}",CarApi.UpdateCarMaster).Methods("PUT")
+	r.HandleFunc("/carmaster/{id}",CarApi.RemoveCarMaster).Methods("DELETE")
+	//For car informations 
+	r.HandleFunc("/addcar",CarApi.AddCompanyCar).Methods("DELETE")
+	r.HandleFunc("/carmaster/{id}",CarApi.DisplayCompanyCarInfo).Methods("GET")
+	r.HandleFunc("/carmaster/{id}",CarApi.RemoveCarCompanyInfo).Methods("DELETE")
 	
-	log.Fatal(http.ListenAndServe(":4447",handlers.LoggingHandler(os.Stdout, r)))
-
+	a.Use(CompanyDao.CheckRole)
+	
+	log.Fatal(http.ListenAndServe(":4447",handlers.LoggingHandler(os.Stdout, r)))	
 }
 
