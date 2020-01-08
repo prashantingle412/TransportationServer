@@ -9,7 +9,7 @@ type Company struct {
 	CreatedOn                 int64  `json:"created_on" bson:"created_on" validate:"required"`
 	CompanyName               string `json:"company_name" bson:"company_name" validate:"required"`
 	CompanyRegistrationNumber string `json:"company_registration_number" bson:"company_registration_number" validate:"required"`
-	Email                     string `json:"email" bson:"email" validate:"required, email"`
+	Email                     string `json:"email" bson:"email" validate:"required"`
 	PhoneNumber               string `json:"phone_number" bson:"phone_number" validate:"required"`
 	MobileNumber              string `json:"mobile_number" bson:"mobile_number" validate:"required"`
 	UserId                    string `json:"user_id" bson:"user_id" validate:"required"`
@@ -28,7 +28,7 @@ type UserInstance struct {
 	MobileNumber string `json:"mobile_number" bson:"mobile_number" validate:"required"` // common in comapny and user
 	Id           string `json:"_id" bson:"_id" validate:"required"`
 	UserAddedOn  int64  `json:"user_added_on" bson:"user_added_on" validate:"required"`
-	UserEmail    string `json:"user_email" bson:"user_email" validate:"required, email"`
+	UserEmail    string `json:"user_email" bson:"user_email" validate:"required"`
 	UserName     string `json:"user_name" bson:"user_name" validate:"required"`
 	UserRole     string `json:"user_role" bson:"user_role" validate:"required"`
 	Password     string `json:"password" bson:"password" validate:"required"`

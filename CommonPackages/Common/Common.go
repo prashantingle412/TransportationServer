@@ -60,16 +60,21 @@ func GetRequestID(ctx context.Context) string {
 
 	return ""
 }
-func ReqIDMiddleware1(next http.Handler) http.Handler {
+func ReqIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		ctx := r.Context()
 
-		r = r.WithContext(AssignRequestID(ctx))
+		id := uuid.New()
 
-		log.Println("Incomming request %s %s %s %s", r.Method, r.RequestURI, r.RemoteAddr, GetRequestID(ctx))
+		ctx = context.WithValue(ctx, ContextKeyRequestID, id.String())
+
+		r = r.WithContext(ctx)
+
+		log.Println("Incomming request %s %s %s %s", r.Method, r.RequestURI, r.RemoteAddr, id.String())
 
 		next.ServeHTTP(w, r)
 
-		log.Println("Finished handling http req. %s", GetRequestID(ctx))
+		log.Println("Finished handling http req. %s", id.String())
 	})
 }

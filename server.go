@@ -43,6 +43,6 @@ func main() {
 	a.HandleFunc("/carmaster/{id}", CarApi.RemoveCarCompanyInfo).Methods("DELETE")
 
 	a.Use(CompanyDao.CheckRole)
-	a.Use(Common.ReqIDMiddleware1)
+	a.Use(Common.ReqIDMiddleware)
 	log.Fatal(http.ListenAndServe(":4447", handlers.LoggingHandler(os.Stdout, r)))
 }
