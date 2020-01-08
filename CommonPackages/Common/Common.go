@@ -41,21 +41,35 @@ type ContextKey string
 
 const ContextKeyRequestID ContextKey = "requestID"
 
+// func for assign rquest id
+func AssignRequestID(ctx context.Context) context.Context {
+
+	reqID := uuid.New()
+
+	return context.WithValue(ctx, ContextKeyRequestID, reqID.String())
+}
+
+// get request id
+func GetRequestID(ctx context.Context) string {
+
+	reqID := ctx.Value(ContextKeyRequestID)
+
+	if ret, ok := reqID.(string); ok {
+		return ret
+	}
+
+	return ""
+}
 func ReqIDMiddleware1(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		ctx := r.Context()
 
-		id := uuid.New()
+		r = r.WithContext(AssignRequestID(ctx))
 
-		ctx = context.WithValue(ctx, ContextKeyRequestID, id.String())
-
-		r = r.WithContext(ctx)
-
-		log.Println("Incomming request %s %s %s %s", r.Method, r.RequestURI, r.RemoteAddr, id.String())
+		log.Println("Incomming request %s %s %s %s", r.Method, r.RequestURI, r.RemoteAddr, GetRequestID(ctx))
 
 		next.ServeHTTP(w, r)
 
-		log.Println("Finished handling http req. %s", id.String())
+		log.Println("Finished handling http req. %s", GetRequestID(ctx))
 	})
 }
