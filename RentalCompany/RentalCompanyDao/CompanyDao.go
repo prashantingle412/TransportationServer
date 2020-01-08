@@ -3,17 +3,44 @@ package CompanyDao
 import (
 	"TransportationServer/CommonPackages/DbConfig"
 	"TransportationServer/CommonPackages/StructConfig"
+	"context"
 	"fmt"
 	"log"
+
+	// "log"
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"gopkg.in/mgo.v2/bson"
 
 	// "encoding/json"
 	"TransportationServer/CommonPackages/Common"
+	// log "github.com/sirupsen/logrus"
 )
 
+type ContextKey string
+
+const ContextKeyRequestID ContextKey = "requestID"
+
+func ReqIDMiddleware1(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		ctx := r.Context()
+
+		id := uuid.New()
+
+		ctx = context.WithValue(ctx, ContextKeyRequestID, id.String())
+
+		r = r.WithContext(ctx)
+
+		fmt.Println("Incomming request %s %s %s %s", r.Method, r.RequestURI, r.RemoteAddr, id.String())
+
+		next.ServeHTTP(w, r)
+
+		fmt.Println("Finished handling http req. %s", id.String())
+	})
+}
 func AddCompanyDetails(args StructConfig.Company) error {
 	DbConfig.Collection = DbConfig.SetCollection("transportation_db", "company_collection")
 	Password := Common.StringMd5(args.Password)

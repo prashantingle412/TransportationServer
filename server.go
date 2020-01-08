@@ -1,39 +1,8 @@
-/*
-package main
-
-import (
-	"fmt"
-
-	"github.com/go-playground/validator"
-)
-
-// "fmt"
-// "encoding/json"
-
-type User struct {
-	Name string `json:"name" validate:"required"`
-	City string `json:"city" validate:"required"`
-}
-
-func main() {
-	userObj := User{
-		Name: "",
-		City: "pune",
-	}
-	validate := validator.New()
-	err := validate.Struct(userObj)
-	if err != nil {
-		fmt.Println("error in validate user",err.Error())
-	}else {
-		fmt.Println("validated")
-	}
-}
-
-*/
 package main
 
 import (
 	"TransportationServer/Car/CarApi"
+	"TransportationServer/CommonPackages/Common"
 	"TransportationServer/RentalCompany/RentalCompanyApi"
 	CompanyDao "TransportationServer/RentalCompany/RentalCompanyDao"
 	"github.com/gorilla/handlers"
@@ -74,6 +43,6 @@ func main() {
 	a.HandleFunc("/carmaster/{id}", CarApi.RemoveCarCompanyInfo).Methods("DELETE")
 
 	a.Use(CompanyDao.CheckRole)
-
+	a.Use(Common.ReqIDMiddleware1)
 	log.Fatal(http.ListenAndServe(":4447", handlers.LoggingHandler(os.Stdout, r)))
 }
